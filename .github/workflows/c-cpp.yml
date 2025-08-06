@@ -1,23 +1,63 @@
-name: C/C++ CI
+name: Build and Release
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main/Controller" ]
+    branches:
+      - main/Controller
+    tags:
+      - 'v*'
   pull_request:
-    branches: [ "main/Controller" ]
+    branches:
+      - main/Controller
 
 jobs:
-  build:
+  # 如果需要添加 Windows/MingW 编译，可启用下面的 job
+  mingw-build:
+     name: Build (MinGW, Windows)
+     runs-on: windows-latest
+     steps:
+      - uses: actions/checkout@v4
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+      - name: Install MinGW
+        uses: egor-tensin/setup-mingw@v2
+      - name: Configure CMake
+        run: cmake -S . -B build -G "MinGW Makefiles"
+      - name: Build
+        run: cmake --build build --config Release
 
-    runs-on: windows-latest
+      # 生成编译日期
+      - name: Generate Build Date Tag
+        id: generate_tag
+        run: |
+          $date = Get-Date -Format "yy.MM.dd"
+          echo "CURRENT_DATE=$date" >> $env:GITHUB_ENV
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      # 打包文件为 ZIP
+      - name: Create ZIP File
+        run: |
+          mkdir ${{ github.workspace }}\Release\output
+          powershell Compress-Archive -Path ${{ github.workspace }}\Release\*.exe,${{ github.workspace }}\README.md -DestinationPath ${{ github.workspace }}\Release\output\release_${{ env.CURRENT_DATE }}.zip
+
+      # 上传 ZIP 文件作为 Artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Release-ZIP
+          path: |
+            ${{ github.workspace }}\Release\output\release_${{ env.CURRENT_DATE }}.zip
+
+      # 创建 GitHub Release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.CURRENT_DATE }}
+          files: |
+            ${{ github.workspace }}\Release\output\release_${{ env.CURRENT_DATE }}.zip
+          body: |
+            Build Date: ${{ env.CURRENT_DATE }}
+            Commit SHA: ${{ github.sha }}
+            "自动构建的 Release 版本"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
