@@ -15,10 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build with MSVC nmake
+      # 自动设置 MSVC 编译环境
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build with nmake
         run: |
           cd Controller
-          call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
           nmake /f Makefile
         shell: cmd
 
@@ -26,7 +29,7 @@ jobs:
         run: |
           mkdir output
           powershell Compress-Archive -Path Controller\*.exe -DestinationPath output\release.zip
-          
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
