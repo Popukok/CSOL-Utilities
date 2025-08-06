@@ -17,6 +17,8 @@ jobs:
 
       - name: Setup MSVC environment
         uses: microsoft/setup-msbuild@v2
+        with:
+            vs-version: '16.0'
 
       - name: Build with nmake
         run: cd Controller && nmake /f Makefile
