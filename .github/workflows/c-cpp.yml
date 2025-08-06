@@ -15,16 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 自动设置 MSVC 编译环境
-      - name: Setup MSBuild
+      - name: Setup MSVC environment
         uses: microsoft/setup-msbuild@v2
 
-      - name: List Visual Studio environments
-        run: dir "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build"
-        shell: cmd
-
-      - name: Build with MSVC nmake
-        run: cd Controller && call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && nmake /f Makefile
+      - name: Build with nmake
+        run: cd Controller && nmake /f Makefile
         shell: cmd
 
       - name: Package Release
