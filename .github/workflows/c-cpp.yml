@@ -1,4 +1,4 @@
-name: Build Windows Release
+name: Build Windows Release (MSVC)
 
 on:
   workflow_dispatch:
@@ -10,44 +10,28 @@ on:
       - main
 
 jobs:
-  build-windows:
-    name: Build (MinGW, Windows)
+  build-windows-msvc:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      # 安装 CMake
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-
-      # 安装 MinGW
-      - name: Install MinGW
-        uses: egor-tensin/setup-mingw@v2
-
-      # 可选：删除 libpthread.dll.a（不会因不存在报错）
-      - name: Remove libpthread.dll.a if exists
+      # 设置 MSVC 环境并编译
+      - name: Build with MSVC nmake
         run: |
-          $mingw_lib = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\x86_64-w64-mingw32\lib"
-          Remove-Item (Join-Path $mingw_lib 'libpthread.dll.a') -ErrorAction SilentlyContinue
-        shell: pwsh
+          cd Controller   # 如果Makefile在Controller目录。如果在根目录去掉cd Controller
+          call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+          nmake /f Makefile
+        shell: cmd
 
-      # 进入 Controller 文件夹并生成 build 目录
-      - name: Configure CMake
-        run: cmake -S Controller -B build -G "MinGW Makefiles"
-
-      # 编译
-      - name: Build
-        run: cmake --build build --config Release
-
-      # 打包可执行文件
+      # 打包可执行文件（假设生成的是exe）
       - name: Package Release
         run: |
-          mkdir build\output
-          powershell Compress-Archive -Path build\*.exe -DestinationPath build\output\release.zip
+          mkdir output
+          powershell Compress-Archive -Path Controller\*.exe -DestinationPath output\release.zip
 
       # 上传构建产物
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Windows-Release
-          path: build/output/release.zip
+          path: output/release.zip
