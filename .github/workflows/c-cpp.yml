@@ -11,12 +11,17 @@ on:
 
 jobs:
   build-windows-msvc:
-    runs-on: windows-2022 
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup MSVC environment
         uses: microsoft/setup-msbuild@v2
+
+      - name: Set up environment
+        run: |
+         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+         echo "##vso[task.setvariable variable=PATH]%PATH%;$env:PATH"
 
       - name: Build with nmake
         run: cd Controller && nmake /f Makefile
