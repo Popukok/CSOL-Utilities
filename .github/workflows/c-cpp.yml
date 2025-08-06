@@ -11,11 +11,12 @@ on:
 
 jobs:
   build-windows:
+    name: Build (MinGW, Windows)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      # 可选：安装 CMake
+      # 安装 CMake
       - name: Install CMake
         uses: lukka/get-cmake@latest
 
@@ -23,7 +24,14 @@ jobs:
       - name: Install MinGW
         uses: egor-tensin/setup-mingw@v2
 
-      # 进入 Controller 文件夹并生成构建目录
+      # 可选：删除 libpthread.dll.a（不会因不存在报错）
+      - name: Remove libpthread.dll.a if exists
+        run: |
+          $mingw_lib = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\x86_64-w64-mingw32\lib"
+          Remove-Item (Join-Path $mingw_lib 'libpthread.dll.a') -ErrorAction SilentlyContinue
+        shell: pwsh
+
+      # 进入 Controller 文件夹并生成 build 目录
       - name: Configure CMake
         run: cmake -S Controller -B build -G "MinGW Makefiles"
 
