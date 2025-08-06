@@ -1,4 +1,4 @@
-name: Build Windows Release (MSVC absolute nmake)
+name: Build Windows Release (GNU Make)
 
 on:
   workflow_dispatch:
@@ -10,23 +10,25 @@ on:
       - main
 
 jobs:
-  build-windows-msvc:
+  build-windows-gnu-make:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug workspace
-        run: |
-         dir
-         dir Controller
+      - name: Install GNU Make
+        run: choco install make
         shell: cmd
 
-      - name: Build with nmake (add to PATH)
+      - name: Debug workspace
         run: |
-         cd Controller
-         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-         set "PATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64;%PATH%"
-         nmake /f Makefile
+          dir
+          dir Controller
+        shell: cmd
+
+      - name: Build with GNU Make
+        run: |
+          cd Controller
+          make -f Makefile
         shell: cmd
 
       - name: Package Release
