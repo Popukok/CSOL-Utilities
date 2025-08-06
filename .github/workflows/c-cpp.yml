@@ -15,21 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 设置 MSVC 环境并编译
       - name: Build with MSVC nmake
         run: |
-          cd Controller   # 如果Makefile在Controller目录。如果在根目录去掉cd Controller
+          cd Controller
           call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
           nmake /f Makefile
         shell: cmd
 
-      # 打包可执行文件（假设生成的是exe）
       - name: Package Release
         run: |
           mkdir output
           powershell Compress-Archive -Path Controller\*.exe -DestinationPath output\release.zip
-
-      # 上传构建产物
+          
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
