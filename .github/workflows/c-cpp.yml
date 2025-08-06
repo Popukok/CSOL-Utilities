@@ -1,32 +1,25 @@
-name: Build Windows Release (GNU Make)
+name: Build Windows Release (C++ with g++)
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-windows-gnu-make:
+  build-windows-gpp:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install GNU Make
-        run: choco install make
+      - name: Install MinGW-w64
+        run: choco install mingw
         shell: cmd
 
-      - name: Debug workspace
+      - name: Build with GNU Make (g++)
         run: |
-          dir
-          dir Controller
-        shell: cmd
-
-      - name: Build with GNU Make
-        run: |
+          set "PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%"
           cd Controller
           make -f Makefile
         shell: cmd
