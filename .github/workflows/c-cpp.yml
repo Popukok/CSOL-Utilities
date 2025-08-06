@@ -15,11 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build with absolute path nmake
+      - name: Debug workspace
         run: |
-          cd Controller
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64\nmake.exe" /f Makefile
+         dir
+         dir Controller
+        shell: cmd
+
+      - name: Build with nmake (add to PATH)
+        run: |
+         cd Controller
+         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+         set "PATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64;%PATH%"
+         nmake /f Makefile
         shell: cmd
 
       - name: Package Release
