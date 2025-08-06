@@ -11,14 +11,12 @@ on:
 
 jobs:
   build-windows-msvc:
-    runs-on: windows-latest
+    runs-on: windows-2022 
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup MSVC environment
         uses: microsoft/setup-msbuild@v2
-        with:
-            vs-version: '16.0'
 
       - name: Build with nmake
         run: cd Controller && nmake /f Makefile
