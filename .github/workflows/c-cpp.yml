@@ -19,6 +19,10 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: List Visual Studio environments
+        run: dir "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build"
+        shell: cmd
+
       - name: Build with nmake
         run: |
           cd Controller
