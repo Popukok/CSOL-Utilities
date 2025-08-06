@@ -18,8 +18,8 @@ jobs:
       - name: Build with absolute path nmake
         run: |
           cd Controller
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2020\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64\nmake.exe" /f Makefile
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64\nmake.exe" /f Makefile
         shell: cmd
 
       - name: Package Release
