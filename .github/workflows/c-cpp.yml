@@ -1,35 +1,37 @@
-name: Build Windows Release (C++ with g++)
+name: Build CSOL-Utilities
 
 on:
-  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  build-windows-gpp:
-    runs-on: windows-latest
+  build:
+    runs-on: windows-latest  # 使用 Windows 运行器，因为这是 .NET 项目
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install MinGW-w64
-        run: choco install mingw
-        shell: cmd
-
-      - name: Build with GNU Make (g++)
-        run: |
-          set "PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%"
-          make -f Makefile
-        shell: cmd
-
-      - name: Package Release
-        run: |
-          mkdir output
-          powershell Compress-Archive -Path Controller\*.exe -DestinationPath output\release.zip
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Windows-Release
-          path: output/release.zip
+    - uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'  # 使用 .NET 7.0
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+      
+    - name: Publish
+      run: dotnet publish -c Release -o publish
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: CSOL-Utilities
+        path: publish/
